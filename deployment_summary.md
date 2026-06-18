@@ -11,7 +11,6 @@
 | **底层数据库** | **TiDB Cloud (Serverless)** | $0 / 永久免费额度 | 存储甲虫个体信息和测量成长历史数据，支持高并发和高可靠性。 |
 | **图片云存储** | **Supabase Storage** | $0 / 500MB 免费额度 | 托管用户上传的甲虫及饲养盒照片，生成公开 URL 供前端直接访问。 |
 | **前后端服务托管**| **Hugging Face Spaces (Docker)**| $0 / CPU Basic 免费实例 | 编译打包 React 前端并将其集成在 Spring Boot 后端中，实现单一容器同源部署。 |
-| **持续集成/部署** | **GitHub Actions** | $0 / 免费额度 | 监听代码推送，自动将最新代码同步同步至 Hugging Face Space 触发自动更新部署。 |
 
 ---
 
@@ -62,33 +61,6 @@
 | `STORAGE_SUPABASE_BUCKET` | `beetle-images` | Supabase 存储桶 |
 | `STORAGE_SUPABASE_KEY` | `<YOUR_SUPABASE_SECRET_KEY>` | Supabase 秘钥 |
 | `APP_SECURITY_PASSCODE` | `由您设定的通行密码` | *(安全控制)* 全局数据访问及修改密匙 |
-
----
-
-## 🔄 GitHub Actions 自动更新与持续部署 (CI/CD)
-
-为了实现您提到的 **“后续自动更新”**，我们配置了 GitHub Actions 自动化工作流。
-
-### 1. 工作原理
-- 工作流文件位于 [.github/workflows/deploy.yml](file:///.github/workflows/deploy.yml)。
-- 当您将代码推送（`git push`）到 GitHub 仓库的 `main` 分支时，GitHub 将自动启动一个虚拟环境，把最新代码同步强制推送至 Hugging Face Space。
-- Hugging Face 检测到代码更新后，将自动重新编译打包 Docker 镜像并重新上线运行，无需您再手动执行 `git push hf main --force`。
-
-### 2. 启用自动同步需要做的配置
-您需要在您的 **GitHub 仓库**（`github.com/your_github_username/your_repo_name`）中添加 Hugging Face 的访问 Token 作为 Secret：
-
-1. **获取 Hugging Face Token**：
-   - 登录 Hugging Face，进入 [Access Tokens 设置页](https://huggingface.co/settings/tokens)。
-   - 点击 **New token**，创建一个 **Write** 权限的 Token 并复制。
-2. **在 GitHub 仓库添加 Secret**：
-   - 在 GitHub 打开您的项目仓库页面。
-   - 点击 **Settings** -> 左侧菜单 **Secrets and variables** -> **Actions**。
-   - 点击 **New repository secret** 按钮。
-   - **Name** 输入：`HF_TOKEN`
-   - **Secret** 输入：粘贴刚才复制的 Hugging Face Write Token。
-   - 点击 **Add secret** 保存。
-
-保存后，后续您在本地运行 `git push origin main` 提交任何代码，GitHub 都会自动处理并更新 Hugging Face Space！
 
 ---
 

@@ -26,7 +26,6 @@ pinned: false
 - **微信小程序 (miniprogram/)**：原生微信小程序，可连接本地后端或 Hugging Face 云端。
 - **数据库**：可使用本地 H2 文件数据库，或云端 TiDB Cloud (Serverless) 兼容 MySQL 模式。
 - **图片云存储**：Supabase Storage（提供全球公开 CDN 访问）。
-- **CI/CD**：通过 GitHub Actions 流程，在代码推送（`git push`）时自动同步至 Hugging Face Space 构建并上线。
 
 ## 目录
 
@@ -36,34 +35,34 @@ frontend/     React (Vite) 网页前端
 miniprogram/  微信小程序前端
 ```
 
-## 运行后端
+## 🚀 快速启动 (Quick Start)
 
-### 推荐：IntelliJ IDEA
+为确保你能一次部署成功，请按以下顺序启动项目：
 
-1. 用 IDEA 打开 `D:\idea_projects\beetle-growth-tracker\backend\pom.xml`。
+### 1. 启动后端 (Spring Boot)
+
+**方法一：使用 IntelliJ IDEA (推荐)**
+1. 用 IDEA 打开 `backend/pom.xml`。
 2. 等待 Maven 依赖同步完成。
 3. 运行 `com.example.beetle.BeetleGrowthApplication`。
 
-启动后访问：
-
-```text
-http://127.0.0.1:8088/api/health
-```
-
-### 命令行 Maven
-
-如果已经安装 Maven：
-
+**方法二：命令行运行**
+如果已安装 Maven，在项目根目录打开终端：
 ```powershell
-cd D:\idea_projects\beetle-growth-tracker\backend
+cd backend
 mvn spring-boot:run
 ```
+启动成功后，后端健康检查接口运行在：`http://127.0.0.1:8088/api/health`
 
-或执行：
+### 2. 启动前端 (React Web)
 
+需要提前安装 Node.js。在项目根目录打开新的终端：
 ```powershell
-.\run.ps1
+cd frontend
+npm install
+npm run dev
 ```
+启动成功后，浏览器访问：`http://localhost:5173`
 
 ## H2 数据库
 
