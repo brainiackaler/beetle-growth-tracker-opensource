@@ -1,0 +1,16 @@
+name: Keep Hugging Face Space Alive
+
+on:
+  schedule:
+    # Runs every 12 hours (at 00:00 and 12:00 UTC, i.e., 08:00 and 20:00 Beijing time)
+    - cron: '0 */12 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          echo "Pinging space at $(date)..."
+          curl -sI https://brainiackaler-beetle-backend.hf.space/api/health | head -n 1

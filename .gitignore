@@ -1,0 +1,30 @@
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backend (Java/Spring)
+backend/target/
+backend/data/*.db
+backend/data/*.sql
+backend/data/*.log
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+
+# Frontend (Node/Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.eslintcache
+
+# Local environments
+.env
+.env.local
+.env.*.local

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "成长记录",
+  "enablePullDownRefresh": true,
+  "backgroundColorTop": "#0a1a0a",
+  "backgroundColor": "#0a1a0a",
+  "usingComponents": {
+    "growth-chart": "/components/growth-chart/growth-chart"
+  }
+}

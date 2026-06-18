@@ -1,0 +1,99 @@
+/* ========================================
+   首页样式
+   ======================================== */
+
+/* --- Hero 区域 --- */
+.hero {
+  padding: 36rpx 0 20rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-icon {
+  font-size: 56rpx;
+  margin-bottom: 12rpx;
+}
+
+.hero-title {
+  font-size: 52rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  background: linear-gradient(135deg, #ffffff 0%, #8fd4a8 50%, #5dbd8a 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 24rpx;
+  letter-spacing: 1rpx;
+}
+
+.hero-divider {
+  margin-top: 28rpx;
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, rgba(93, 189, 138, 0.3), transparent);
+}
+
+/* --- 甲虫卡片 --- */
+.beetle-card {
+  transition: all 0.2s ease;
+}
+
+.beetle-card:active {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(0.985);
+}
+
+.beetle-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+
+.beetle-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.beetle-arrow {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.beetle-card:active .beetle-arrow {
+  transform: translateX(6rpx);
+  color: rgba(93, 189, 138, 0.6);
+}
+
+.beetle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.meta-icon {
+  font-size: 20rpx;
+}
+
+/* --- 新增表单卡片 --- */
+.form-card {
+  border: 1rpx dashed rgba(93, 189, 138, 0.3);
+  background: rgba(93, 189, 138, 0.04);
+}

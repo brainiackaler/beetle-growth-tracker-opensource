@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "甲虫成长记录",
+    "navigationBarBackgroundColor": "#0a1a0a",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0a1a0a",
+    "backgroundColorTop": "#0a1a0a",
+    "backgroundColorBottom": "#0a1a0a"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>甲虫成长记录</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+      background: linear-gradient(165deg, #0a1a0a 0%, #142814 30%, #1a2e1a 55%, #2a1a0a 100%);
+      color: rgba(255,255,255,0.92);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px;
+      right: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(47,111,79,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -60px;
+      left: -60px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(180,120,60,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* --- Hero --- */
+    .hero { padding: 20px 0 12px; }
+    .hero-icon { font-size: 36px; margin-bottom: 8px; }
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 0%, #8fd4a8 50%, #5dbd8a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      margin-top: 8px;
+      color: rgba(255,255,255,0.4);
+      font-size: 13px;
+    }
+    .hero-divider {
+      margin-top: 16px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(93,189,138,0.3), transparent);
+    }
+
+    /* --- Section Title --- */
+    .section-title {
+      margin: 24px 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 16px;
+      background: linear-gradient(180deg, #5dbd8a, #2f6f4f);
+      border-radius: 2px;
+    }
+
+    /* --- Glass Card --- */
+    .card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+      animation: cardIn 0.35s ease-out both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-card {
+      border: 1px dashed rgba(93,189,138,0.3);
+      background: rgba(93,189,138,0.04);
+    }
+
+    /* --- Input --- */
+    .input, .textarea, select {
+      width: 100%;
+      min-height: 44px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      font-size: 15px;
+      color: rgba(255,255,255,0.9);
+      outline: none;
+      transition: all 0.25s;
+      font-family: inherit;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .input:focus, .textarea:focus, select:focus {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(93,189,138,0.5);
+      box-shadow: 0 0 12px rgba(93,189,138,0.15);
+    }
+    .input::placeholder, .textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .textarea { min-height: 80px; resize: vertical; }
+    select option { background: #1a2e1a; color: #fff; }
+
+    /* --- Buttons --- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      letter-spacing: 1px;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(47,111,79,0.85), rgba(35,90,60,0.95));
+      color: #fff;
+      border: 1px solid rgba(93,189,138,0.3);
+      box-shadow: 0 3px 14px rgba(47,111,79,0.3);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, rgba(155,61,48,0.7), rgba(130,45,35,0.85));
+      color: rgba(255,255,255,0.92);
+      border: 1px solid rgba(200,80,60,0.3);
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-small {
+      min-height: 34px;
+      padding: 0 14px;
+      font-size: 13px;
+      width: auto;
+      border-radius: 8px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 14px; }
+    .btn-row .btn { flex: 1; }
+
+    /* --- Beetle Card --- */
+    .beetle-card { cursor: pointer; transition: all 0.2s; }
+    .beetle-card:active { background: rgba(255,255,255,0.12); transform: scale(0.985); }
+    .beetle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .beetle-name { font-size: 18px; font-weight: 700; }
+    .beetle-arrow { color: rgba(255,255,255,0.25); font-size: 18px; transition: transform 0.2s; }
+    .beetle-card:active .beetle-arrow { transform: translateX(4px); color: rgba(93,189,138,0.6); }
+    .beetle-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+    }
+    .notes { margin-top: 10px; color: rgba(255,255,255,0.45); font-size: 13px; line-height: 1.6; }
+
+    /* --- Empty State --- */
+    .empty { text-align: center; padding: 36px 0; color: rgba(255,255,255,0.35); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; }
+
+    /* --- Detail View --- */
+    .detail-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .info-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .info-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+    }
+
+    /* --- Record Card --- */
+    .record-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .record-date { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.88); }
+    .stage {
+      padding: 4px 12px;
+      background: rgba(93,189,138,0.18);
+      color: rgba(150,230,180,0.9);
+      border: 1px solid rgba(93,189,138,0.25);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .stage-egg { background: rgba(255,200,100,0.15); color: rgba(255,220,140,0.9); border-color: rgba(255,200,100,0.25); }
+    .stage-larva { background: rgba(100,200,255,0.15); color: rgba(140,210,255,0.9); border-color: rgba(100,200,255,0.25); }
+    .stage-pupa { background: rgba(200,150,255,0.15); color: rgba(210,180,255,0.9); border-color: rgba(200,150,255,0.25); }
+    .stage-adult { background: rgba(255,140,100,0.15); color: rgba(255,170,130,0.9); border-color: rgba(255,140,100,0.25); }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .metric-label { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+    .metric-value { font-size: 17px; font-weight: 700; color: rgba(255,255,255,0.85); }
+    .metric-unit { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 400; margin-left: 2px; }
+
+    .record-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* --- Image Grid --- */
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .img-wrap {
+      position: relative;
+      padding-bottom: 100%; /* 1:1 Aspect Ratio */
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .img-wrap img {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .img-remove {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 20px; height: 20px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .img-add {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: rgba(255,255,255,0.3);
+      cursor: pointer;
+    }
+    
+    /* --- Fullscreen Image Preview --- */
+    .preview-mask {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .preview-mask.show { display: flex; animation: fadeIn 0.2s; }
+    .preview-mask img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    /* --- Chart --- */
+    .chart-wrap {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .tab-bar { display: flex; gap: 6px; margin-bottom: 14px; }
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .tab-item.active {
+      color: rgba(255,255,255,0.92);
+      background: rgba(93,189,138,0.2);
+      border-color: rgba(93,189,138,0.4);
+    }
+    .chart-canvas { width: 100%; height: 200px; }
+    .chart-empty { text-align: center; padding: 40px 0; color: rgba(255,255,255,0.3); font-size: 14px; }
+
+    /* --- Back Button --- */
+    .back-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .back-bar:active { color: rgba(93,189,138,0.8); }
+
+    /* --- Toast --- */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* --- Page transition --- */
+    .page { display: none; }
+    .page.active { display: block; animation: pageIn 0.3s ease-out; }
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* --- Modal --- */
+    .modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      background: rgba(30,50,30,0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 24px;
+      width: 280px;
+      text-align: center;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .modal-content { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btns .btn { min-height: 40px; font-size: 14px; }
+
+    /* --- FAB --- */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      box-shadow: 0 4px 16px rgba(34,197,94,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #000;
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.2s;
+    }
+    .fab:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ====== 列表页 ====== -->
+    <div id="pageList" class="page active">
+      <div class="hero">
+        <div class="hero-icon">🪲</div>
+        <div class="hero-title">甲虫成长记录</div>
+        <div class="hero-subtitle" id="statusText">连接中...</div>
+        <div class="hero-divider"></div>
+      </div>
+
+      <div class="section-title">我的甲虫</div>
+      <div id="beetleList"></div>
+
+      <!-- 悬浮添加按钮 -->
+      <div class="fab" onclick="showAddBeetle()">+</div>
+    </div>
+
+    <!-- ====== 新增甲虫页 ====== -->
+    <div id="pageAddBeetle" class="page">
+      <div class="back-bar" onclick="showList()">‹ 返回列表</div>
+      <div class="section-title">新增甲虫</div>
+      <div class="card form-card">
+        <input class="input" id="fName" placeholder="名称，例如 大力一号">
+        <input class="input" id="fSpecies" placeholder="品种，例如 独角仙 / 锹甲">
+        <input class="input" id="fHatchDate" type="date" placeholder="孵化或购入日期">
+        <textarea class="textarea" id="fNotes" placeholder="备注，例如 来源、饲养盒、菌瓶信息"></textarea>
+        <button class="btn btn-primary" onclick="createBeetle()">✨ 保存甲虫</button>
+      </div>
+    </div>
+
+    <!-- ====== 详情页 ====== -->
+    <div id="pageDetail" class="page">
+      <div class="back-bar" onclick="showList()">‹ 返回列表</div>
+      <div id="beetleInfo"></div>
+
+      <div id="chartSection" style="display:none">
+        <div class="section-title">成长曲线</div>
+        <div class="chart-wrap">
+          <div class="tab-bar">
+            <div class="tab-item active" data-key="weight" onclick="switchChart(this)">⚖️ 体重</div>
+            <div class="tab-item" data-key="length" onclick="switchChart(this)">📏 体长</div>
+            <div class="tab-item" data-key="temperature" onclick="switchChart(this)">🌡️ 温度</div>
+            <div class="tab-item" data-key="humidity" onclick="switchChart(this)">💧 湿度</div>
+          </div>
+          <canvas id="chartCanvas" class="chart-canvas"></canvas>
+          <div id="chartEmpty" class="chart-empty" style="display:none">该指标暂无有效数据</div>
+        </div>
+      </div>
+
+      <div class="section-title">新增成长记录</div>
+      <div class="card form-card">
+        <input class="input" id="rDate" type="date">
+        <select class="input" id="rStage">
+          <option>卵</option><option>一龄幼虫</option><option>二龄幼虫</option>
+          <option>三龄幼虫</option><option>蛹</option><option>成虫</option><option>其他</option>
+        </select>
+        <input class="input" id="rWeight" type="number" step="0.01" placeholder="⚖️ 体重 g">
+        <input class="input" id="rLength" type="number" step="0.01" placeholder="📏 体长 mm">
+        <input class="input" id="rTemp" type="number" step="0.1" placeholder="🌡️ 温度 ℃">
+        <input class="input" id="rHumid" type="number" step="1" placeholder="💧 湿度 %">
+        <textarea class="textarea" id="rNotes" placeholder="📝 备注，例如 换土、蜕皮、进食、异常情况"></textarea>
+        
+        <div class="section-title" style="margin-top:0">📸 照片</div>
+        <div class="img-grid" id="uploadGrid">
+          <div class="img-wrap" onclick="document.getElementById('rPhotos').click()">
+            <div class="img-add">+</div>
+          </div>
+        </div>
+        <input type="file" id="rPhotos" multiple accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+        
+        <button class="btn btn-primary" onclick="createRecord()" id="btnSaveRecord" style="margin-top: 16px;">✨ 保存记录</button>
+      </div>
+
+      <div class="section-title">历史记录</div>
+      <div id="recordList"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-mask" id="modalMask">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-content" id="modalContent"></div>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+        <button class="btn btn-danger" id="modalConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Preview -->
+  <div class="preview-mask" id="previewMask" onclick="this.classList.remove('show')">
+    <img id="previewImg" src="">
+  </div>
+
+<script>
+// ============ API ============
+const API = location.origin;
+let currentBeetleId = null;
+let currentRecords = [];
+let activeChartKey = 'weight';
+let selectedFiles = [];
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    method: opts.method || 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    body: opts.data ? JSON.stringify(opts.data) : undefined
+  });
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+
+// ============ Toast ============
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+// ============ Modal ============
+function showConfirm(title, content, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').textContent = content;
+  document.getElementById('modalMask').classList.add('show');
+  document.getElementById('modalConfirm').onclick = () => { closeModal(); onConfirm(); };
+}
+function closeModal() { document.getElementById('modalMask').classList.remove('show'); }
+
+function previewImage(url) {
+  document.getElementById('previewImg').src = url;
+  document.getElementById('previewMask').classList.add('show');
+}
+
+// ============ Navigation ============
+function showList() {
+  document.getElementById('pageList').classList.add('active');
+  document.getElementById('pageDetail').classList.remove('active');
+  document.getElementById('pageAddBeetle').classList.remove('active');
+  loadBeetles();
+}
+function showAddBeetle() {
+  document.getElementById('pageList').classList.remove('active');
+  document.getElementById('pageDetail').classList.remove('active');
+  document.getElementById('pageAddBeetle').classList.add('active');
+  // clear form
+  document.getElementById('fName').value = '';
+  document.getElementById('fSpecies').value = '';
+  document.getElementById('fHatchDate').value = '';
+  document.getElementById('fNotes').value = '';
+}
+function showDetail(id) {
+  currentBeetleId = id;
+  document.getElementById('pageList').classList.remove('active');
+  document.getElementById('pageAddBeetle').classList.remove('active');
+  document.getElementById('pageDetail').classList.add('active');
+  setRecordDateToday();
+  loadDetail();
+}
+
+// ============ List Page ============
+async function loadBeetles() {
+  try {
+    const data = await api('/api/beetles');
+    document.getElementById('statusText').textContent = '已连接本机后端';
+    const list = data.items || [];
+    if (list.length === 0) {
+      document.getElementById('beetleList').innerHTML =
+        '<div class="card"><div class="empty"><div class="empty-icon">🌿</div><div class="empty-text">还没有记录，先添加一只甲虫吧</div></div></div>';
+      return;
+    }
+    document.getElementById('beetleList').innerHTML = list.map((b, i) => `
+      <div class="card beetle-card" onclick="showDetail('${b.id}')" style="animation-delay:${i*0.06}s">
+        <div class="beetle-header">
+          <div class="beetle-name">${b.name || '未命名甲虫'}</div>
+          <div class="beetle-arrow">›</div>
+        </div>
+        <div class="beetle-meta">
+          ${b.species ? `<span class="meta-tag">🪲 ${b.species}</span>` : ''}
+          ${b.hatchDate ? `<span class="meta-tag">📅 ${b.hatchDate}</span>` : ''}
+        </div>
+        ${b.notes ? `<div class="notes">${b.notes}</div>` : ''}
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('statusText').textContent = '未连接后端';
+  }
+}
+
+async function createBeetle() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { toast('请填写名称'); return; }
+  try {
+    await api('/api/beetles', { method: 'POST', data: {
+      name,
+      species: document.getElementById('fSpecies').value.trim(),
+      hatchDate: document.getElementById('fHatchDate').value,
+      notes: document.getElementById('fNotes').value.trim()
+    }});
+    toast('添加成功');
+    showList();
+  } catch(e) { toast('添加失败'); }
+}
+
+// ============ Detail Page ============
+function setRecordDateToday() {
+  const d = new Date();
+  document.getElementById('rDate').value =
+    `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function stageClass(stage) {
+  if (!stage) return '';
+  if (stage.includes('卵')) return 'stage-egg';
+  if (stage.includes('幼虫')) return 'stage-larva';
+  if (stage.includes('蛹')) return 'stage-pupa';
+  if (stage.includes('成虫')) return 'stage-adult';
+  return '';
+}
+
+async function loadDetail() {
+  if (!currentBeetleId) return;
+  try {
+    const [bd, rd] = await Promise.all([
+      api(`/api/beetles/${encodeURIComponent(currentBeetleId)}`),
+      api(`/api/beetles/${encodeURIComponent(currentBeetleId)}/records`)
+    ]);
+    const b = bd.item;
+    currentRecords = rd.items || [];
+
+    document.getElementById('beetleInfo').innerHTML = `
+      <div class="card">
+        <div class="detail-title">🪲 ${b.name || '未命名甲虫'}</div>
+        <div class="info-meta">
+          ${b.species ? `<span class="info-tag">🔬 ${b.species}</span>` : ''}
+          ${b.hatchDate ? `<span class="info-tag">📅 ${b.hatchDate}</span>` : ''}
+        </div>
+        ${b.notes ? `<div class="notes">${b.notes}</div>` : ''}
+        <div class="btn-row">
+          <button class="btn btn-danger" onclick="deleteBeetle()">🗑️ 删除甲虫</button>
+          <button class="btn btn-ghost" onclick="loadDetail()">🔄 刷新</button>
+        </div>
+      </div>`;
+
+    // Chart
+    if (currentRecords.length >= 2) {
+      document.getElementById('chartSection').style.display = '';
+      drawChart();
+    } else {
+      document.getElementById('chartSection').style.display = 'none';
+    }
+
+    // Records
+    if (currentRecords.length === 0) {
+      document.getElementById('recordList').innerHTML =
+        '<div class="card"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">还没有成长记录</div></div></div>';
+      return;
+    }
+    document.getElementById('recordList').innerHTML = currentRecords.map((r, i) => {
+      let imagesHtml = '';
+      if (r.imageUrls) {
+        const urls = r.imageUrls.split(',').filter(u => u);
+        if (urls.length > 0) {
+          imagesHtml = '<div class="img-grid">' + urls.map(u => 
+            `<div class="img-wrap" onclick="previewImage('${u}')"><img src="${u}"></div>`
+          ).join('') + '</div>';
+        }
+      }
+      return `
+      <div class="card" style="animation-delay:${i*0.06}s">
+        <div class="record-head">
+          <div class="record-date">${r.recordDate || '未填写日期'}</div>
+          <span class="stage ${stageClass(r.stage)}">${r.stage || '未填写阶段'}</span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item"><div class="metric-label">⚖️ 体重</div><div class="metric-value">${r.weight || '-'}<span class="metric-unit"> g</span></div></div>
+          <div class="metric-item"><div class="metric-label">📏 体长</div><div class="metric-value">${r.length || '-'}<span class="metric-unit"> mm</span></div></div>
+          <div class="metric-item"><div class="metric-label">🌡️ 温度</div><div class="metric-value">${r.temperature || '-'}<span class="metric-unit"> ℃</span></div></div>
+          <div class="metric-item"><div class="metric-label">💧 湿度</div><div class="metric-value">${r.humidity || '-'}<span class="metric-unit"> %</span></div></div>
+        </div>
+        ${r.notes ? `<div class="notes">${r.notes}</div>` : ''}
+        ${imagesHtml}
+        <div class="record-actions">
+          <button class="btn btn-danger btn-small" onclick="deleteRecord('${r.id}')">🗑️ 删除</button>
+        </div>
+      </div>
+    `}).join('');
+  } catch(e) { toast('加载失败'); }
+}
+
+// ============ Image Upload Logic ============
+function handleFileSelect(e) {
+  const files = Array.from(e.target.files);
+  selectedFiles = selectedFiles.concat(files);
+  renderUploadGrid();
+  e.target.value = ''; // reset
+}
+
+function removeFile(index) {
+  selectedFiles.splice(index, 1);
+  renderUploadGrid();
+}
+
+function renderUploadGrid() {
+  const grid = document.getElementById('uploadGrid');
+  let html = '';
+  selectedFiles.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    html += `
+      <div class="img-wrap">
+        <img src="${url}">
+        <div class="img-remove" onclick="removeFile(${i})">✕</div>
+      </div>
+    `;
+  });
+  if (selectedFiles.length < 9) {
+    html += `
+      <div class="img-wrap" onclick="document.getElementById('rPhotos').click()">
+        <div class="img-add">+</div>
+      </div>
+    `;
+  }
+  grid.innerHTML = html;
+}
+
+async function uploadFiles() {
+  const urls = [];
+  for (let f of selectedFiles) {
+    const fd = new FormData();
+    fd.append('file', f);
+    const res = await fetch(API + '/api/upload', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('Upload failed');
+    const data = await res.json();
+    if (data.url) urls.push(data.url);
+  }
+  return urls;
+}
+
+async function createRecord() {
+  const btn = document.getElementById('btnSaveRecord');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  try {
+    let imageUrls = '';
+    if (selectedFiles.length > 0) {
+      const urls = await uploadFiles();
+      imageUrls = urls.join(',');
+    }
+
+    await api(`/api/beetles/${encodeURIComponent(currentBeetleId)}/records`, { method: 'POST', data: {
+      recordDate: document.getElementById('rDate').value,
+      stage: document.getElementById('rStage').value,
+      weight: document.getElementById('rWeight').value,
+      length: document.getElementById('rLength').value,
+      temperature: document.getElementById('rTemp').value,
+      humidity: document.getElementById('rHumid').value,
+      notes: document.getElementById('rNotes').value.trim(),
+      imageUrls: imageUrls
+    }});
+    toast('已保存');
+    document.getElementById('rWeight').value = '';
+    document.getElementById('rLength').value = '';
+    document.getElementById('rTemp').value = '';
+    document.getElementById('rHumid').value = '';
+    document.getElementById('rNotes').value = '';
+    selectedFiles = [];
+    renderUploadGrid();
+    loadDetail();
+  } catch(e) { 
+    console.error(e);
+    toast('保存失败'); 
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ 保存记录';
+  }
+}
+
+function deleteRecord(rid) {
+  showConfirm('删除记录', '确定删除这条成长记录吗？', async () => {
+    try {
+      await api(`/api/beetles/${encodeURIComponent(currentBeetleId)}/records/${encodeURIComponent(rid)}`, { method: 'DELETE' });
+      toast('已删除');
+      loadDetail();
+    } catch(e) { toast('删除失败'); }
+  });
+}
+
+function deleteBeetle() {
+  showConfirm('删除甲虫', '删除后会同时删除它的成长记录。', async () => {
+    try {
+      await api(`/api/beetles/${encodeURIComponent(currentBeetleId)}`, { method: 'DELETE' });
+      toast('已删除');
+      showList();
+    } catch(e) { toast('删除失败'); }
+  });
+}
+
+// ============ Chart ============
+const CHART_COLORS = {
+  weight:      { line: '#5dbd8a', fill: 'rgba(93,189,138,0.15)', dot: '#8fe0b0' },
+  length:      { line: '#64c8ff', fill: 'rgba(100,200,255,0.15)', dot: '#a0dcff' },
+  temperature: { line: '#ffb060', fill: 'rgba(255,176,96,0.15)',  dot: '#ffd0a0' },
+  humidity:    { line: '#c896ff', fill: 'rgba(200,150,255,0.15)', dot: '#dcbfff' }
+};
+const UNITS = { weight:'g', length:'mm', temperature:'℃', humidity:'%' };
+
+function switchChart(el) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  activeChartKey = el.dataset.key;
+  drawChart();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('chartCanvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 2;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0,0,w,h);
+
+  const key = activeChartKey;
+  const color = CHART_COLORS[key];
+  const unit = UNITS[key];
+
+  const points = currentRecords
+    .filter(r => r[key] && parseFloat(r[key]) > 0)
+    .map(r => ({ date: r.recordDate||'', value: parseFloat(r[key]) }))
+    .reverse();
+
+  if (points.length < 2) {
+    document.getElementById('chartCanvas').style.display = 'none';
+    document.getElementById('chartEmpty').style.display = '';
+    return;
+  }
+  document.getElementById('chartCanvas').style.display = '';
+  document.getElementById('chartEmpty').style.display = 'none';
+
+  const pL=50, pR=16, pT=24, pB=32;
+  const cW=w-pL-pR, cH=h-pT-pB;
+  const vals = points.map(p=>p.value);
+  let mn=Math.min(...vals), mx=Math.max(...vals);
+  if(mn===mx){mn-=1;mx+=1;}
+  const pad=(mx-mn)*0.15; mn-=pad; mx+=pad;
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=0.5;
+  ctx.font='10px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let i=0;i<=4;i++){
+    const y=pT+(cH/4)*i;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(w-pR,y); ctx.stroke();
+    ctx.fillText((mx-((mx-mn)/4)*i).toFixed(1), pL-6, y);
+  }
+
+  const coords = points.map((p,i)=>({
+    x: pL+(cW/(points.length-1))*i,
+    y: pT+cH-((p.value-mn)/(mx-mn))*cH,
+    date:p.date, value:p.value
+  }));
+
+  // fill
+  ctx.beginPath(); ctx.moveTo(coords[0].x, pT+cH);
+  coords.forEach(c=>ctx.lineTo(c.x,c.y));
+  ctx.lineTo(coords[coords.length-1].x, pT+cH); ctx.closePath();
+  const grad=ctx.createLinearGradient(0,pT,0,pT+cH);
+  grad.addColorStop(0,color.fill); grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad; ctx.fill();
+
+  // line
+  ctx.beginPath(); ctx.strokeStyle=color.line; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.lineCap='round';
+  coords.forEach((c,i)=>i===0?ctx.moveTo(c.x,c.y):ctx.lineTo(c.x,c.y));
+  ctx.stroke();
+
+  // dots
+  coords.forEach(c=>{
+    ctx.beginPath(); ctx.arc(c.x,c.y,4,0,Math.PI*2); ctx.fillStyle=color.fill; ctx.fill();
+    ctx.beginPath(); ctx.arc(c.x,c.y,2.5,0,Math.PI*2); ctx.fillStyle=color.dot; ctx.fill();
+  });
+
+  // x labels
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='9px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  const step=Math.max(1,Math.ceil(coords.length/6));
+  coords.forEach((c,i)=>{
+    if(i%step===0||i===coords.length-1){
+      ctx.fillText(c.date.length>5?c.date.substring(5):c.date, c.x, pT+cH+8);
+    }
+  });
+
+  // unit
+  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='9px sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText(unit, pL, pT-4);
+}
+
+// ============ Init ============
+loadBeetles();
+</script>
+</body>
+</html>

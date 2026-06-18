@@ -1,0 +1,14 @@
+<view class="chart-wrap">
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'weight' ? 'active' : ''}}" data-tab="weight" bindtap="switchTab">⚖️ 体重</view>
+    <view class="tab-item {{activeTab === 'length' ? 'active' : ''}}" data-tab="length" bindtap="switchTab">📏 体长</view>
+    <view class="tab-item {{activeTab === 'temperature' ? 'active' : ''}}" data-tab="temperature" bindtap="switchTab">🌡️ 温度</view>
+    <view class="tab-item {{activeTab === 'humidity' ? 'active' : ''}}" data-tab="humidity" bindtap="switchTab">💧 湿度</view>
+  </view>
+  <view class="canvas-container">
+    <canvas type="2d" id="growthCanvas" class="chart-canvas"></canvas>
+    <view wx:if="{{noData}}" class="chart-empty">
+      <text>该指标暂无有效数据</text>
+    </view>
+  </view>
+</view>

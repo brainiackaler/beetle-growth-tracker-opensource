@@ -1,0 +1,334 @@
+/* ========================================
+   甲虫成长记录 — Glassmorphism 深色主题
+   ======================================== */
+
+page {
+  background: linear-gradient(165deg, #0a1a0a 0%, #142814 30%, #1a2e1a 55%, #2a1a0a 100%);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx 28rpx 60rpx;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* --- 装饰光斑 --- */
+.page::before {
+  content: '';
+  position: fixed;
+  top: -200rpx;
+  right: -150rpx;
+  width: 500rpx;
+  height: 500rpx;
+  background: radial-gradient(circle, rgba(47, 111, 79, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page::after {
+  content: '';
+  position: fixed;
+  bottom: -100rpx;
+  left: -100rpx;
+  width: 400rpx;
+  height: 400rpx;
+  background: radial-gradient(circle, rgba(180, 120, 60, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- 区块标题 --- */
+.section-title {
+  margin: 36rpx 0 20rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 2rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 6rpx;
+  height: 28rpx;
+  margin-right: 14rpx;
+  background: linear-gradient(180deg, #5dbd8a, #2f6f4f);
+  border-radius: 3rpx;
+  vertical-align: middle;
+}
+
+/* --- 毛玻璃卡片 --- */
+.card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(40rpx);
+  -webkit-backdrop-filter: blur(40rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.25),
+              inset 0 1rpx 0 rgba(255, 255, 255, 0.08);
+  animation: cardFadeIn 0.4s ease-out both;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 为列表中的卡片添加错开动画 */
+.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.06s; }
+.card:nth-child(3) { animation-delay: 0.12s; }
+.card:nth-child(4) { animation-delay: 0.18s; }
+.card:nth-child(5) { animation-delay: 0.24s; }
+.card:nth-child(6) { animation-delay: 0.3s; }
+
+/* --- 次要文字 --- */
+.muted {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 26rpx;
+}
+
+/* --- 输入框 --- */
+.input,
+.textarea,
+.picker {
+  width: 100%;
+  min-height: 80rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 18rpx;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.input:focus,
+.textarea:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(93, 189, 138, 0.5);
+  box-shadow: 0 0 20rpx rgba(93, 189, 138, 0.15);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* picker 文字颜色（未选时为占位色） */
+.picker {
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+}
+
+.picker-placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.textarea {
+  min-height: 140rpx;
+}
+
+/* --- 按钮行 --- */
+.button-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+/* --- 主按钮 --- */
+.primary-btn {
+  flex: 1;
+  min-height: 84rpx;
+  background: linear-gradient(135deg, rgba(47, 111, 79, 0.85) 0%, rgba(35, 90, 60, 0.95) 100%);
+  color: #ffffff;
+  border: 1rpx solid rgba(93, 189, 138, 0.3);
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  box-shadow: 0 4rpx 20rpx rgba(47, 111, 79, 0.3);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn::after {
+  border: none;
+}
+
+.primary-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 2rpx 10rpx rgba(47, 111, 79, 0.2);
+}
+
+/* --- 危险按钮 --- */
+.danger-btn {
+  flex: 1;
+  min-height: 84rpx;
+  background: linear-gradient(135deg, rgba(155, 61, 48, 0.7) 0%, rgba(130, 45, 35, 0.85) 100%);
+  color: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid rgba(200, 80, 60, 0.3);
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  box-shadow: 0 4rpx 20rpx rgba(155, 61, 48, 0.2);
+  transition: all 0.2s ease;
+}
+
+.danger-btn::after {
+  border: none;
+}
+
+.danger-btn:active {
+  transform: scale(0.97);
+}
+
+/* --- 幽灵按钮 --- */
+.ghost-btn {
+  flex: 1;
+  min-height: 84rpx;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1rpx solid rgba(255, 255, 255, 0.15);
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  transition: all 0.2s ease;
+}
+
+.ghost-btn::after {
+  border: none;
+}
+
+.ghost-btn:active {
+  background: rgba(255, 255, 255, 0.14);
+  transform: scale(0.97);
+}
+
+/* --- 小型按钮 --- */
+.small-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56rpx;
+  padding: 0 24rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.small-btn::after {
+  border: none;
+}
+
+.small-btn:active {
+  transform: scale(0.95);
+}
+
+.small-danger-btn {
+  background: rgba(155, 61, 48, 0.5);
+  color: rgba(255, 180, 160, 0.9);
+  border: 1rpx solid rgba(200, 80, 60, 0.25);
+}
+
+/* --- 备注 --- */
+.notes {
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+/* --- 空状态 --- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 0;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+}
+
+/* --- 标签胶囊 --- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 18rpx;
+  background: rgba(93, 189, 138, 0.15);
+  border: 1rpx solid rgba(93, 189, 138, 0.25);
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: rgba(150, 230, 180, 0.9);
+}
+
+.tag-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #5dbd8a;
+  margin-right: 10rpx;
+}
+
+/* --- 指标切换栏 --- */
+.tab-bar {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 10rpx;
+  transition: all 0.25s ease;
+}
+
+.tab-item.active {
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(93, 189, 138, 0.2);
+  border-color: rgba(93, 189, 138, 0.4);
+}
+
+picker {
+  width: 100%;
+  display: block;
+}
