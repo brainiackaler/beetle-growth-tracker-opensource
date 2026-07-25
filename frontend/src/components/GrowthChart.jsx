@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { translate as tr } from '../i18n';
+
 
 const COLORS = {
   weight:      { line: '#5dbd8a', fill: 'rgba(93,189,138,0.15)', dot: '#8fe0b0' },
@@ -29,7 +31,7 @@ export default function GrowthChart({ records = [] }) {
   const drawChart = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const container = containerRef.current;
     if (!container) return;
@@ -44,7 +46,7 @@ export default function GrowthChart({ records = [] }) {
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    
+
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
@@ -76,7 +78,7 @@ export default function GrowthChart({ records = [] }) {
     const values = points.map(p => p.value);
     let minVal = Math.min(...values);
     let maxVal = Math.max(...values);
-    
+
     if (minVal === maxVal) {
       minVal -= 1;
       maxVal += 1;
@@ -163,7 +165,7 @@ export default function GrowthChart({ records = [] }) {
 
     const maxLabels = Math.min(6, points.length);
     const step = Math.max(1, Math.ceil(coords.length / maxLabels));
-    
+
     coords.forEach((c, i) => {
       if (i % step === 0 || i === coords.length - 1) {
         // Format date to MM-DD
@@ -196,7 +198,7 @@ export default function GrowthChart({ records = [] }) {
 
   return (
     <div className="card chart-card">
-      <div className="section-title">📊 成长曲线</div>
+      <div className="section-title">{tr("📊 成长曲线")}</div>
       <div className="tab-bar">
         {Object.keys(LABELS).map(key => (
           <div
@@ -204,7 +206,7 @@ export default function GrowthChart({ records = [] }) {
             className={`tab-item ${activeTab === key ? 'active' : ''}`}
             onClick={() => setActiveTab(key)}
           >
-            {LABELS[key]}
+            {tr(LABELS[key])}
           </div>
         ))}
       </div>
@@ -212,7 +214,7 @@ export default function GrowthChart({ records = [] }) {
         <canvas className="canvas-element" ref={canvasRef} />
         {!hasData && (
           <div className="chart-no-data">
-            <div>📈 数据点不足 (需要至少 2 个记录)</div>
+            <div>{tr("📈 数据点不足 (需要至少 2 个记录)")}</div>
           </div>
         )}
       </div>

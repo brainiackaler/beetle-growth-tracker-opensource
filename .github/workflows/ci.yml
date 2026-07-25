@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-tree-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Reject private files and common secret formats
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tracked_files="$(git ls-files)"
+          forbidden_paths='(^|/)(\.env($|\.)|project\.private\.config\.json$|[^/]*\.(pem|key|p12|pfx|jks)$)'
+          data_paths='(^|/)(data|uploads?)/'
+
+          if printf '%s\n' "$tracked_files" | grep -E "$forbidden_paths" | grep -vE '(^|/)\.env\.example$'; then
+            echo "A private configuration or credential file is tracked."
+            exit 1
+          fi
+
+          if printf '%s\n' "$tracked_files" | grep -E "$data_paths" | grep -vE '/\.gitkeep$'; then
+            echo "Runtime data or uploads are tracked."
+            exit 1
+          fi
+
+          secret_pattern='(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|hf_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)'
+          if git grep -nE "$secret_pattern" -- . ':!.github/workflows/ci.yml'; then
+            echo "A common secret format was found."
+            exit 1
+          fi
+
+          if git grep -nE '\b[0-9a-fA-F]{64}\b' -- . ':!frontend/package-lock.json' ':!.github/workflows/ci.yml'; then
+            echo "A hard-coded 64-character digest was found; review before publishing."
+            exit 1
+          fi
+
+  backend:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-random-looking-value-for-tests-32-bytes
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "8"
+          cache: maven
+      - name: Test backend
+        run: mvn -B test
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+
+  docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build production image
+        run: docker build --tag beetle-growth-tracker:ci .

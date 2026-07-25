@@ -1,6 +1,9 @@
-# IDEs and editors
+# IDEs, editors and local Codex tooling
 .idea/
 .vscode/
+.agents/
+.codex/
+.playwright-cli/
 *.suo
 *.ntvs*
 *.njsproj
@@ -11,20 +14,35 @@
 .DS_Store
 Thumbs.db
 
-# Backend (Java/Spring)
-backend/target/
-backend/data/*.db
-backend/data/*.sql
-backend/data/*.log
-backend/data/uploads/*
-!backend/data/uploads/.gitkeep
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+miniprogram/project.private.config.json
 
-# Frontend (Node/Vite)
+# Backend build output and user data
+backend/target/
+backend/src/main/resources/static/
+backend/data/*
+!backend/data/.gitkeep
+
+# Docker runtime data
+data/*
+!data/.gitkeep
+
+# Frontend build output
 frontend/node_modules/
 frontend/dist/
 frontend/.eslintcache
 
-# Local environments
-.env
-.env.local
-.env.*.local
+# Logs and backups
+*.log
+*.bak
+*.backup
+*.sql
+*.zip

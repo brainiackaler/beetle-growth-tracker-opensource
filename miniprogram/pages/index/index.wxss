@@ -3,6 +3,32 @@
    ======================================== */
 
 /* --- Hero 区域 --- */
+.language-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16rpx;
+  padding-top: 12rpx;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 22rpx;
+}
+
+.language-label {
+  white-space: nowrap;
+}
+
+.language-picker {
+  max-width: 360rpx;
+  padding: 10rpx 18rpx;
+  overflow: hidden;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .hero {
   padding: 36rpx 0 20rpx;
   position: relative;
@@ -34,6 +60,43 @@
   margin-top: 28rpx;
   height: 1rpx;
   background: linear-gradient(90deg, transparent, rgba(93, 189, 138, 0.3), transparent);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.auth-tab {
+  flex: 1;
+  margin: 0;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 26rpx;
+}
+
+.auth-tab.active {
+  border-color: rgba(93, 189, 138, 0.5);
+  background: rgba(93, 189, 138, 0.14);
+  color: #b8f2cf;
+}
+
+.account-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8rpx;
+}
+
+.logout-btn {
+  margin: 0;
+  padding: 0 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 24rpx;
+  line-height: 58rpx;
 }
 
 /* --- 甲虫卡片 --- */

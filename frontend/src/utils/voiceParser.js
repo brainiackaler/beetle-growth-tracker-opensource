@@ -8,32 +8,32 @@ export function parseVoiceText(text) {
   if (!text) return result;
 
   // 1. 解析体重 (支持: "体重45.2克", "体重 45.2", "45.2克", "45.2g")
-  const weightMatch = 
-    text.match(/(?:体重|重)\s*(\d+(?:\.\d+)?)/) || 
+  const weightMatch =
+    text.match(/(?:体重|重)\s*(\d+(?:\.\d+)?)/) ||
     text.match(/(\d+(?:\.\d+)?)\s*(?:g|克)/i);
   if (weightMatch) {
     result.weight = weightMatch[1];
   }
 
   // 2. 解析体长 (支持: "体长82.3毫米", "长 82.3", "82.3毫米", "82.3mm")
-  const lengthMatch = 
-    text.match(/(?:体长|长|长度)\s*(\d+(?:\.\d+)?)/) || 
+  const lengthMatch =
+    text.match(/(?:体长|长|长度)\s*(\d+(?:\.\d+)?)/) ||
     text.match(/(\d+(?:\.\d+)?)\s*(?:mm|毫米)/i);
   if (lengthMatch) {
     result.length = lengthMatch[1];
   }
 
   // 3. 解析饲养温度 (支持: "温度24.5", "温 24.5", "24.5度", "24.5℃")
-  const tempMatch = 
-    text.match(/(?:温度|室温|温)\s*(\d+(?:\.\d+)?)/) || 
+  const tempMatch =
+    text.match(/(?:温度|室温|温)\s*(\d+(?:\.\d+)?)/) ||
     text.match(/(\d+(?:\.\d+)?)\s*(?:℃|度|摄氏度)/);
   if (tempMatch) {
     result.temperature = tempMatch[1];
   }
 
   // 4. 解析湿度 (支持: "湿度65", "湿 65", "65%", "百分之65")
-  const humidityMatch = 
-    text.match(/(?:湿度|湿)\s*(\d+(?:\.\d+)?)/) || 
+  const humidityMatch =
+    text.match(/(?:湿度|湿)\s*(\d+(?:\.\d+)?)/) ||
     text.match(/(\d+(?:\.\d+)?)\s*(?:%|百分之)/) ||
     text.match(/百分之\s*(\d+(?:\.\d+)?)/);
   if (humidityMatch) {

@@ -1,4 +1,5 @@
 const api = require('../../utils/api')
+const i18n = require('../../utils/i18n')
 const app = getApp()
 
 function today() {
@@ -18,13 +19,61 @@ function stageClass(stage) {
   return ''
 }
 
+function albumPermissionError(errMsg) {
+  return {
+    albumPermissionDenied: true,
+    errMsg: errMsg || i18n.t('albumPermissionMissing')
+  }
+}
+
+function isAlbumPermissionDenied(error) {
+  const message = error && error.errMsg ? error.errMsg : ''
+  return Boolean(error && error.albumPermissionDenied) || /auth deny|authorize:fail|permission/i.test(message)
+}
+
+function ensureAlbumPermission() {
+  return new Promise((resolve, reject) => {
+    wx.getSetting({
+      success(res) {
+        const permission = res.authSetting['scope.writePhotosAlbum']
+        if (permission === true) {
+          resolve()
+          return
+        }
+        if (permission === false) {
+          reject(albumPermissionError())
+          return
+        }
+        wx.authorize({
+          scope: 'scope.writePhotosAlbum',
+          success: resolve,
+          fail: error => reject(albumPermissionError(error && error.errMsg))
+        })
+      },
+      fail: reject
+    })
+  })
+}
+
+function saveImageToAlbum(filePath) {
+  return new Promise((resolve, reject) => {
+    wx.saveImageToPhotosAlbum({
+      filePath,
+      success: resolve,
+      fail: reject
+    })
+  })
+}
+
 Page({
   data: {
+    i18n: i18n.getMessages(),
     id: '',
     beetle: null,
     records: [],
     selectedImages: [],
     stages: ['卵', '一龄幼虫', '二龄幼虫', '三龄幼虫', '蛹', '成虫', '其他'],
+    stageLabels: ['卵', '一龄幼虫', '二龄幼虫', '三龄幼虫', '蛹', '成虫', '其他'].map(i18n.translateStage),
     stageIndex: 0,
     isEditingBeetle: false,
     editBeetleForm: {
@@ -47,11 +96,30 @@ Page({
 
   onLoad(options) {
     this.setData({ id: options.id || '' })
+    this.syncLanguage()
     this.loadAll()
+  },
+
+  onShow() {
+    this.syncLanguage()
   },
 
   onPullDownRefresh() {
     this.loadAll()
+  },
+
+  syncLanguage() {
+    const state = i18n.refreshSystemLanguage()
+    app.globalData.languageMode = state.mode
+    app.globalData.language = state.language
+    this.setData({
+      i18n: i18n.getMessages(),
+      stageLabels: this.data.stages.map(i18n.translateStage),
+      records: (this.data.records || []).map(record => Object.assign({}, record, {
+        stageLabel: i18n.translateStage(record.stage)
+      }))
+    })
+    wx.setNavigationBarTitle({ title: i18n.t('growthRecordsTitle') })
   },
 
   onInput(e) {
@@ -83,6 +151,7 @@ Page({
     ]).then(([beetleData, recordData]) => {
       const items = (recordData.items || []).map(r => {
         r.stageClass = stageClass(r.stage)
+        r.stageLabel = i18n.translateStage(r.stage)
         r.imageUrlsArray = r.imageUrls ? r.imageUrls.split(',').filter(u => u).map(u => u.startsWith('http') ? u : app.globalData.apiBase + u) : []
         return r
       })
@@ -91,7 +160,7 @@ Page({
         records: items
       })
     }).catch(() => {
-      wx.showToast({ title: '加载失败', icon: 'none' })
+      wx.showToast({ title: i18n.t('loadFailed'), icon: 'none' })
     }).finally(() => {
       wx.stopPullDownRefresh()
     })
@@ -100,14 +169,69 @@ Page({
   chooseImages() {
     const maxCount = 9 - this.data.selectedImages.length
     if (maxCount <= 0) return
+    wx.showActionSheet({
+      itemList: [i18n.t('takePhotoAndSave'), i18n.t('chooseFromAlbum')],
+      success: res => {
+        const sourceType = res.tapIndex === 0 ? 'camera' : 'album'
+        this.chooseImagesFrom(sourceType, maxCount)
+      }
+    })
+  },
+
+  chooseImagesFrom(sourceType, maxCount) {
     wx.chooseMedia({
-      count: maxCount,
+      count: sourceType === 'camera' ? 1 : maxCount,
       mediaType: ['image'],
-      sourceType: ['album', 'camera'],
+      sourceType: [sourceType],
+      camera: 'back',
       success: (res) => {
         const paths = res.tempFiles.map(f => f.tempFilePath)
         this.setData({
           selectedImages: this.data.selectedImages.concat(paths)
+        })
+        if (sourceType === 'camera') {
+          this.saveCapturedImagesToAlbum(paths)
+        }
+      }
+    })
+  },
+
+  saveCapturedImagesToAlbum(paths) {
+    if (!paths || paths.length === 0) return
+    ensureAlbumPermission()
+      .then(() => Promise.all(paths.map(saveImageToAlbum)))
+      .then(() => {
+        wx.showToast({
+          title: paths.length > 1 ? i18n.t('photosSaved', { count: paths.length }) : i18n.t('photoSaved'),
+          icon: 'success'
+        })
+      })
+      .catch(error => {
+        if (isAlbumPermissionDenied(error)) {
+          this.showAlbumPermissionGuide(paths)
+          return
+        }
+        wx.showToast({
+          title: i18n.t('photoAlbumSaveFailed'),
+          icon: 'none'
+        })
+      })
+  },
+
+  showAlbumPermissionGuide(paths) {
+    wx.showModal({
+      title: i18n.t('albumPermissionTitle'),
+      content: i18n.t('albumPermissionContent'),
+      confirmText: i18n.t('goToSettings'),
+      cancelText: i18n.t('later'),
+      success: res => {
+        if (!res.confirm) return
+        wx.openSetting({
+          success: setting => {
+            if (setting.authSetting['scope.writePhotosAlbum']) {
+              this.saveCapturedImagesToAlbum(paths)
+            }
+          }
         })
       }
     })
@@ -134,7 +258,7 @@ Page({
     const isRemotePath = (p) => p.startsWith('http') && p.indexOf('tmp') === -1 && p.indexOf('wxfile') === -1;
     const getRelativePath = (p) => p.startsWith(apiBase) ? p.substring(apiBase.length) : p;
 
-    wx.showLoading({ title: '上传中...' })
+    wx.showLoading({ title: i18n.t('uploading') })
     const promises = files.map(file => {
       if (isRemotePath(file)) {
         return Promise.resolve(getRelativePath(file));
@@ -164,13 +288,13 @@ Page({
 
   createRecord() {
     if (!this.data.form.recordDate) {
-      wx.showToast({ title: '请填写日期', icon: 'none' }); return;
+      wx.showToast({ title: i18n.t('pleaseEnterDate'), icon: 'none' }); return;
     }
-    wx.showLoading({ title: '保存中...' })
+    wx.showLoading({ title: i18n.t('saving') })
     this.uploadImages().then(imageUrls => {
       const data = Object.assign({}, this.data.form, { imageUrls })
       const isEdit = !!this.data.editingRecordId;
-      const url = isEdit 
+      const url = isEdit
         ? `/api/beetles/${encodeURIComponent(this.data.id)}/records/${encodeURIComponent(this.data.editingRecordId)}`
         : `/api/beetles/${encodeURIComponent(this.data.id)}/records`;
       const method = isEdit ? 'PUT' : 'POST';
@@ -181,7 +305,7 @@ Page({
       })
     }).then(() => {
       wx.hideLoading()
-      wx.showToast({ title: '已保存' })
+      wx.showToast({ title: i18n.t('saved') })
       this.setData({
         selectedImages: [],
         editingRecordId: '',
@@ -198,25 +322,25 @@ Page({
       this.loadAll()
     }).catch(() => {
       wx.hideLoading()
-      wx.showToast({ title: '保存失败', icon: 'none' })
+      wx.showToast({ title: i18n.t('saveFailed'), icon: 'none' })
     })
   },
 
   deleteRecord(e) {
     const recordId = e.currentTarget.dataset.recordId
     wx.showModal({
-      title: '删除记录',
-      content: '确定删除这条成长记录吗？',
+      title: i18n.t('deleteRecordTitle'),
+      content: i18n.t('deleteRecordContent'),
       confirmColor: '#9b3d30',
       success: res => {
         if (!res.confirm) return
         api.request(`/api/beetles/${encodeURIComponent(this.data.id)}/records/${encodeURIComponent(recordId)}`, {
           method: 'DELETE'
         }).then(() => {
-          wx.showToast({ title: '已删除' })
+          wx.showToast({ title: i18n.t('deleted') })
           this.loadAll()
         }).catch(() => {
-          wx.showToast({ title: '删除失败', icon: 'none' })
+          wx.showToast({ title: i18n.t('deleteFailed'), icon: 'none' })
         })
       }
     })
@@ -224,8 +348,8 @@ Page({
 
   deleteBeetle() {
     wx.showModal({
-      title: '删除甲虫',
-      content: '删除后会同时删除它的成长记录。',
+      title: i18n.t('deleteBeetleTitle'),
+      content: i18n.t('deleteBeetleContent'),
       confirmColor: '#9b3d30',
       success: res => {
         if (!res.confirm) return
@@ -234,7 +358,7 @@ Page({
         }).then(() => {
           wx.navigateBack()
         }).catch(() => {
-          wx.showToast({ title: '删除失败', icon: 'none' })
+          wx.showToast({ title: i18n.t('deleteFailed'), icon: 'none' })
         })
       }
     })
@@ -274,21 +398,21 @@ Page({
   saveBeetle() {
     const form = this.data.editBeetleForm
     if (!form.name.trim()) {
-      wx.showToast({ title: '请填写名称', icon: 'none' })
+      wx.showToast({ title: i18n.t('pleaseEnterName'), icon: 'none' })
       return
     }
-    wx.showLoading({ title: '保存中...' })
+    wx.showLoading({ title: i18n.t('saving') })
     api.request(`/api/beetles/${encodeURIComponent(this.data.id)}`, {
       method: 'PUT',
       data: form
     }).then(() => {
       wx.hideLoading()
-      wx.showToast({ title: '已保存' })
+      wx.showToast({ title: i18n.t('saved') })
       this.setData({ isEditingBeetle: false })
       this.loadAll()
     }).catch(() => {
       wx.hideLoading()
-      wx.showToast({ title: '保存失败', icon: 'none' })
+      wx.showToast({ title: i18n.t('saveFailed'), icon: 'none' })
     })
   },
 
@@ -312,7 +436,7 @@ Page({
         notes: record.notes || ''
       }
     })
-    
+
     // Scroll up to the form
     wx.pageScrollTo({
       selector: '.form-card',

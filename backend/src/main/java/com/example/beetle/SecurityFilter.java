@@ -1,6 +1,5 @@
 package com.example.beetle;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,11 @@ import java.io.IOException;
 @Component
 public class SecurityFilter implements Filter {
 
-    @Value("${app.security.passcode:}")
-    private String passcode;
+    private final JwtUtils jwtUtils;
+
+    public SecurityFilter(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -26,26 +28,34 @@ public class SecurityFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
 
         String path = req.getRequestURI();
-        
-        // Skip security check for health endpoint, login endpoint, and static assets
-        if (!path.startsWith("/api") || path.equals("/api/health") || path.equals("/api/auth/login")) {
+
+        // Telegram verifies its public webhook with a secret header inside TelegramWebhookController.
+        boolean publicTelegramWebhook = path.equals("/api/integrations/telegram/webhook");
+
+        // Skip security check for public endpoints and static assets.
+        if (!path.startsWith("/api")
+                || path.equals("/api/health")
+                || path.startsWith("/api/auth/")
+                || publicTelegramWebhook) {
             chain.doFilter(request, response);
             return;
         }
 
-        // If passcode is not configured in the environment, allow all requests
-        if (passcode == null || passcode.trim().isEmpty()) {
-            chain.doFilter(request, response);
-            return;
+        String authHeader = req.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            if (jwtUtils.validateToken(token)) {
+                Long userId = jwtUtils.getUserIdFromToken(token);
+                if (userId != null) {
+                    req.setAttribute("userId", userId);
+                    chain.doFilter(request, response);
+                    return;
+                }
+            }
         }
 
-        String reqPasscode = req.getHeader("X-Passcode");
-        if (passcode.trim().equals(reqPasscode)) {
-            chain.doFilter(request, response);
-        } else {
-            res.setStatus(HttpStatus.UNAUTHORIZED.value());
-            res.setContentType("application/json;charset=UTF-8");
-            res.getWriter().write("{\"error\":\"unauthorized\",\"message\":\"Invalid passcode\"}");
-        }
+        res.setStatus(HttpStatus.UNAUTHORIZED.value());
+        res.setContentType("application/json;charset=UTF-8");
+        res.getWriter().write("{\"error\":\"unauthorized\",\"message\":\"Invalid or missing token\"}");
     }
 }

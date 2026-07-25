@@ -1,16 +1,14 @@
-# Build stage
-FROM maven:3.8.5-openjdk-8 AS build
+FROM maven:3.9.16-eclipse-temurin-8 AS build
 WORKDIR /app
 COPY pom.xml .
-# Cache dependencies
 RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Run stage
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:8-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-ENV PORT=7860
-EXPOSE 7860
-ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "app.jar"]
+RUN mkdir -p /app/data
+ENV PORT=8088
+EXPOSE 8088
+ENTRYPOINT ["java", "-jar", "app.jar"]

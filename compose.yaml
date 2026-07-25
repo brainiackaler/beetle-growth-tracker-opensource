@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8088}:8088"
+    environment:
+      PORT: "8088"
+      JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env before starting}"
+      REGISTRATION_ENABLED: "${REGISTRATION_ENABLED:-true}"
+      DATABASE_URL: "${DATABASE_URL:-jdbc:h2:file:/app/data/beetle_growth;MODE=MySQL;AUTO_SERVER=TRUE}"
+      DB_USERNAME: "${DB_USERNAME:-sa}"
+      DB_PASSWORD: "${DB_PASSWORD:-}"
+      H2_CONSOLE_ENABLED: "${H2_CONSOLE_ENABLED:-false}"
+      STORAGE_SUPABASE_URL: "${STORAGE_SUPABASE_URL:-}"
+      STORAGE_SUPABASE_BUCKET: "${STORAGE_SUPABASE_BUCKET:-}"
+      STORAGE_SUPABASE_KEY: "${STORAGE_SUPABASE_KEY:-}"
+      BARK_ICON_URL: "${BARK_ICON_URL:-}"
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN:-}"
+      TELEGRAM_BOT_USERNAME: "${TELEGRAM_BOT_USERNAME:-}"
+      TELEGRAM_WEBHOOK_SECRET: "${TELEGRAM_WEBHOOK_SECRET:-}"
+      TELEGRAM_WEBHOOK_URL: "${TELEGRAM_WEBHOOK_URL:-}"
+      TELEGRAM_API_PROXY_URL: "${TELEGRAM_API_PROXY_URL:-}"
+      TELEGRAM_API_PROXY_SECRET: "${TELEGRAM_API_PROXY_SECRET:-}"
+    volumes:
+      - ./data:/app/data

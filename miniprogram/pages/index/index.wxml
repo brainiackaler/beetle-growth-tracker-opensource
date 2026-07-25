@@ -1,37 +1,67 @@
 <view class="page">
+  <view class="language-row">
+    <text class="language-label">🌐 {{i18n.interfaceLanguage}}</text>
+    <picker
+      range="{{languageOptions}}"
+      range-key="label"
+      value="{{languageIndex}}"
+      bindchange="onLanguageChange"
+    >
+      <view class="language-picker">{{languageOptions[languageIndex].label}}⌄</view>
+    </picker>
+  </view>
+
   <!-- Hero 区域 -->
   <view class="hero">
     <view class="hero-icon">🪲</view>
-    <view class="hero-title">甲虫成长记录</view>
+    <view class="hero-title">{{i18n.appTitle}}</view>
     <view class="hero-subtitle">{{statusText}}</view>
     <view class="hero-divider"></view>
   </view>
 
+  <view wx:if="{{!authenticated}}">
+    <view class="section-title">{{i18n.account}}</view>
+    <view class="card form-card">
+      <view class="auth-tabs">
+        <button class="auth-tab {{authMode === 'login' ? 'active' : ''}}" data-mode="login" bindtap="setAuthMode">{{i18n.login}}</button>
+        <button class="auth-tab {{authMode === 'register' ? 'active' : ''}}" data-mode="register" bindtap="setAuthMode">{{i18n.register}}</button>
+      </view>
+      <input class="input" placeholder="{{i18n.username}}" value="{{authForm.username}}" data-key="username" bindinput="onAuthInput" />
+      <input class="input" password placeholder="{{i18n.password}}" value="{{authForm.password}}" data-key="password" bindinput="onAuthInput" />
+      <button class="primary-btn" bindtap="submitAuth">{{authMode === 'login' ? i18n.login : i18n.register}}</button>
+    </view>
+  </view>
+
+  <block wx:else>
+  <view class="account-row">
+    <button class="logout-btn" bindtap="logout">{{i18n.logout}}</button>
+  </view>
+
   <!-- 新增甲虫表单 -->
-  <view class="section-title">新增甲虫</view>
+  <view class="section-title">{{i18n.addBeetle}}</view>
   <view class="card form-card">
-    <input class="input" placeholder="名称，例如 大力一号" value="{{form.name}}" data-key="name" bindinput="onInput" />
-    <input class="input" placeholder="品种，例如 独角仙 / 锹甲" value="{{form.species}}" data-key="species" bindinput="onInput" />
+    <input class="input" placeholder="{{i18n.namePlaceholder}}" value="{{form.name}}" data-key="name" bindinput="onInput" />
+    <input class="input" placeholder="{{i18n.speciesPlaceholder}}" value="{{form.species}}" data-key="species" bindinput="onInput" />
     <picker mode="date" value="{{form.hatchDate}}" bindchange="onDateChange">
-      <view class="picker {{form.hatchDate ? '' : 'picker-placeholder'}}">{{form.hatchDate || '🗓️ 孵化或购入日期'}}</view>
+      <view class="picker {{form.hatchDate ? '' : 'picker-placeholder'}}">{{form.hatchDate || '🗓️ ' + i18n.hatchPurchaseDate}}</view>
     </picker>
-    <textarea class="textarea" placeholder="备注，例如 来源、饲养盒、菌瓶信息" value="{{form.notes}}" data-key="notes" bindinput="onInput" />
-    <button class="primary-btn" bindtap="createBeetle">✨ 保存甲虫</button>
+    <textarea class="textarea" placeholder="{{i18n.notesPlaceholder}}" value="{{form.notes}}" data-key="notes" bindinput="onInput" />
+    <button class="primary-btn" bindtap="createBeetle">{{i18n.saveBeetle}}</button>
   </view>
 
   <!-- 甲虫列表 -->
-  <view class="section-title">我的甲虫</view>
+  <view class="section-title">{{i18n.myBeetles}}</view>
 
   <view wx:if="{{beetles.length === 0}}" class="card">
     <view class="empty-state">
       <view class="empty-icon">🌿</view>
-      <view class="empty-text">还没有记录，先添加一只甲虫吧</view>
+      <view class="empty-text">{{i18n.emptyBeetles}}</view>
     </view>
   </view>
 
   <view wx:for="{{beetles}}" wx:key="id" class="card beetle-card" data-id="{{item.id}}" bindtap="goDetail">
     <view class="beetle-header">
-      <view class="beetle-name">{{item.name || '未命名甲虫'}}</view>
+      <view class="beetle-name">{{item.name || i18n.unnamedBeetle}}</view>
       <view class="beetle-arrow">›</view>
     </view>
     <view class="beetle-meta">
@@ -46,4 +76,5 @@
     </view>
     <view wx:if="{{item.notes}}" class="notes">{{item.notes}}</view>
   </view>
+  </block>
 </view>

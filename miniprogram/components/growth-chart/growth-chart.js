@@ -23,6 +23,10 @@ Component({
       type: Array,
       value: [],
       observer: 'onRecordsChange'
+    },
+    i18n: {
+      type: Object,
+      value: {}
     }
   },
 
@@ -121,7 +125,7 @@ Component({
       minVal -= padding
       maxVal += padding
 
-      // --- 绘制网格线 --- 
+      // --- 绘制网格线 ---
       const gridLines = 4
       ctx.strokeStyle = 'rgba(255,255,255,0.06)'
       ctx.lineWidth = 0.5

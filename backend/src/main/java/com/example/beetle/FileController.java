@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import net.coobird.thumbnailator.Thumbnails;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -51,13 +54,36 @@ public class FileController {
         }
         String newFileName = UUID.randomUUID().toString() + extension;
 
+        byte[] fileBytes;
+        try {
+            fileBytes = file.getBytes();
+            String contentType = file.getContentType();
+            // 如果是图片，尝试进行压缩（保持分辨率，降低质量到70%左右以减小体积）
+            if (contentType != null && contentType.startsWith("image/")) {
+                try {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    Thumbnails.of(new ByteArrayInputStream(fileBytes))
+                            .scale(1.0) // 保持原比例
+                            .outputQuality(0.7) // 调整图片质量
+                            .toOutputStream(os);
+                    fileBytes = os.toByteArray();
+                } catch (Exception e) {
+                    // 如果图片格式不受支持或压缩失败，打印异常并继续使用原图字节
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Collections.singletonMap("error", "Failed to read file: " + e.getMessage());
+        }
+
         // Check if Supabase configuration is present
-        if (supabaseUrl != null && !supabaseUrl.trim().isEmpty() && 
-            supabaseBucket != null && !supabaseBucket.trim().isEmpty() && 
+        if (supabaseUrl != null && !supabaseUrl.trim().isEmpty() &&
+            supabaseBucket != null && !supabaseBucket.trim().isEmpty() &&
             supabaseKey != null && !supabaseKey.trim().isEmpty()) {
-            
+
             try {
-                String publicUrl = uploadToSupabase(file.getBytes(), newFileName, file.getContentType());
+                String publicUrl = uploadToSupabase(fileBytes, newFileName, file.getContentType());
                 return Collections.singletonMap("url", publicUrl);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -73,7 +99,7 @@ public class FileController {
             }
 
             Path path = Paths.get(UPLOAD_DIR + newFileName);
-            Files.write(path, file.getBytes());
+            Files.write(path, fileBytes);
 
             return Collections.singletonMap("url", "/uploads/" + newFileName);
         } catch (IOException e) {
@@ -87,7 +113,7 @@ public class FileController {
         if (baseUrl.endsWith("/")) {
             baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
         }
-        
+
         String uploadUrlStr = baseUrl + "/storage/v1/object/" + supabaseBucket.trim() + "/" + fileName;
         URL url = new URL(uploadUrlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
